@@ -10,6 +10,7 @@ import dev.lzzgabriel.course.entities.User;
 import dev.lzzgabriel.course.repositories.UserRepository;
 import dev.lzzgabriel.course.services.exceptions.DatabaseException;
 import dev.lzzgabriel.course.services.exceptions.ResourceNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class UserService {
@@ -43,9 +44,13 @@ public class UserService {
   }
 
   public User update(Long id, User obj) {
-    var entity = repository.getReferenceById(id);
-    updateData(entity, obj);
-    return repository.save(entity);
+    try {
+      var entity = repository.getReferenceById(id);
+      updateData(entity, obj);
+      return repository.save(entity);
+    } catch (EntityNotFoundException e) {
+      throw new ResourceNotFoundException(id);
+    }
   }
 
   private void updateData(User entity, User obj) {
